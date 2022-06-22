@@ -1,9 +1,8 @@
 FROM openjdk:17-jdk-slim
-FROM postgres:14.3
 
-CMD ["mvn", "clean"]
-CMD ["mvn", "package"]
+RUN ./mvnw package -DskipTests
 
+EXPOSE 80
 COPY target/shop-0.0.1-SNAPSHOT.jar /shop.jar
 
 CMD ["java", "-jar", "/shop.jar"]
