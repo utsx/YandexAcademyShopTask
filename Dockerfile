@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM openjdk:8
 FROM maven:3.6.0-jdk-11-slim
 
 CMD ["mvn", "package"]
