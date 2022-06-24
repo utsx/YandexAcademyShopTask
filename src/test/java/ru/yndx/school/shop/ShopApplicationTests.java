@@ -23,7 +23,7 @@ import java.util.Scanner;
 class ShopApplicationTests {
 
 
-	/*@Autowired
+	@Autowired
 	ItemComponent itemComponent;
 
 	private String getDataFromFileToJSON(String file) throws FileNotFoundException, ParseException {
@@ -99,7 +99,7 @@ class ShopApplicationTests {
 		response = itemComponent.getItemById("069cb8d7-bbdd-47d3-ad8f-82ef4c269df1");
 		Assertions.assertEquals(expected, Objects.requireNonNull(response.getBody()).toString());
 	}
-*/
+
 
 
 
