@@ -3,6 +3,8 @@ version: '2'
 services:
   app:
     image: 'docker-spring-boot-postgres:latest'
+    ports:
+      - "80:80"
     build:
       context: .
     container_name: app
@@ -13,7 +15,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=compose-postgres
       - SPRING_DATASOURCE_PASSWORD=compose-postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
-
+    extra_hosts:
+      - " https://maternity-1828.usr.yandex-academy.ru"
   db:
     image: 'postgres:13.1-alpine'
     container_name: db

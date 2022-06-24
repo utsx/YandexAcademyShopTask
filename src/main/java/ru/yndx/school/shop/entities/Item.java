@@ -10,8 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,10 +43,6 @@ public class Item {
         this.parentId = parentId == null ? null : parentId.toString();
         this.date = date.toString();
         this.price = price;
-    }
-
-    public void addPrice(Long value){
-        this.price += ((value * children.size()) + value) / (children.size() + 1);
     }
 
     @Override

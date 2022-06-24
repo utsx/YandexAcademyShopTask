@@ -22,6 +22,7 @@ import java.util.Scanner;
 @RunWith(SpringRunner.class)
 class ShopApplicationTests {
 
+
 	@Autowired
 	ItemComponent itemComponent;
 
@@ -32,6 +33,7 @@ class ShopApplicationTests {
 			line.append(scanner.nextLine()).append("\n");
 		return line.toString();
 	}
+
 	private String getDataFromFileToLine(String file) throws FileNotFoundException, ParseException {
 		Scanner scanner = new Scanner(new FileInputStream(file));
 		StringBuilder line = new StringBuilder();
@@ -82,7 +84,7 @@ class ShopApplicationTests {
 		loadDataToDB(getDataFromFileToJSON("src/test/java/ru/yndx/school/shop/data/data.json"));
 		ResponseEntity response = itemComponent.delete("1cc0129a-2bfe-474c-9ee6-d435bf5fc8f2");
 		Assertions.assertEquals(response, new ResponseEntity<>(new Answer(200, "OK"), HttpStatus.OK));
-		String expected = getDataFromFileToLine("src/test/java/ru/yndx/school/shop/data/expectedWithDelete.json");
+		String expected = getDataFromFileToLine("src/test/java/ru/yndx/school/shop/data/expectedWithDeleteCategory.json");
 		response = itemComponent.getItemById("069cb8d7-bbdd-47d3-ad8f-82ef4c269df1");
 		Assertions.assertEquals(expected, Objects.requireNonNull(response.getBody()).toString());
 	}
