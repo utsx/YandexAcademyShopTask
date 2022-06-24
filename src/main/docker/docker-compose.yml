@@ -4,7 +4,7 @@ services:
   app:
     image: 'docker-spring-boot-postgres:latest'
     ports:
-      - "maternity-1828.usr.yandex-academy.ru:80:80"
+      - "0.0.0.0:80:80"
     build:
       context: .
     container_name: app
