@@ -1,22 +1,22 @@
 package ru.yndx.school.shop.entities;
 
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 import java.util.List;
+import javax.xml.bind.DatatypeConverter;
 
 @Entity
 @NoArgsConstructor
 @Getter
 @Setter
-public class Item {
+public class Item{
 
     @Id
     private String id;
@@ -32,16 +32,21 @@ public class Item {
     private String parentId;
 
     @NotNull(message = "Update time can't be null")
-    private String date;
+    private Timestamp date;
 
-    private Long price;
+    private Double price;
 
-    public Item(Object id, Object type, Object name, Object parentId, Object date, Long price) {
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    @SneakyThrows
+    public Item(Object id, Object type, Object name, Object parentId, Object date, Double price) {
         this.id = id.toString();
         this.type = type.toString();
         this.name = name.toString();
         this.parentId = parentId == null ? null : parentId.toString();
-        this.date = date.toString();
+        this.date = new Timestamp(DatatypeConverter.parseDateTime(date.toString()).getTimeInMillis());
         this.price = price;
     }
 
@@ -58,3 +63,5 @@ public class Item {
                 "]}";
     }
 }
+
+

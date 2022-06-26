@@ -1,6 +1,7 @@
 package ru.yndx.school.shop.controllers;
 
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,17 @@ public class MainController {
 
     @GetMapping("/nodes/{id}")
     public ResponseEntity nodes(@PathVariable String id){
-        return itemComponent.getItemById(id);
+        return itemComponent.getItemByIdToReturn(id);
     }
 
+    @GetMapping(value = "/sales", consumes = "application/json", produces = "application/json")
+    public ResponseEntity sales(HttpEntity<String> httpEntity){
+        return itemComponent.sales(httpEntity.getBody());
+    }
 
+    @GetMapping(value = "/nodes/{id}/statistic", consumes = "application/json", produces = "application/json")
+    public ResponseEntity statistic(@PathVariable String id, HttpEntity<String> httpEntity){
+        return itemComponent.statistic(id, httpEntity.getBody());
+    }
 
 }
