@@ -1,8 +1,6 @@
 package ru.yndx.school.shop.entities;
 
 import lombok.*;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import java.sql.Timestamp;
 import java.util.Date;
