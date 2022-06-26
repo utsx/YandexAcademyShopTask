@@ -1,6 +1,8 @@
 package ru.yndx.school.shop.components;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
+@Tag(name = "Основные методы", description = "В нем представлены все основыне методы")
 public class ItemComponent {
 
     private ItemRepo itemRepo;
@@ -51,6 +54,7 @@ public class ItemComponent {
         return ResponseEntity.ok(ans);
     }
 
+    @Operation(summary = "Строит полное дерево объектов, чтобы вернуть в удобный формат")
     private ItemReturn findChildrenByRootIdToReturn(String id) {
         Queue<ItemReturn> notProcessedItems = new LinkedList<>();
         Optional<Item> optionalItem = itemRepo.findById(id);
@@ -87,6 +91,7 @@ public class ItemComponent {
         return ResponseEntity.ok(ans);
     }
 
+    @Operation(summary = "Строит полное дерево объектов")
     private Item findChildrenByRootId(String id) {
         Queue<Item> notProcessedItems = new LinkedList<>();
         Optional<Item> optionalItem = itemRepo.findById(id);
@@ -108,6 +113,7 @@ public class ItemComponent {
     }
 
     //sales
+    @Operation(summary = "Выводит объекты измененные в течении 24 часов с переданной даты")
     public ResponseEntity sales(String date) {
         Timestamp start, finish;
         try {
@@ -126,6 +132,7 @@ public class ItemComponent {
     }
 
     //Delete
+    @Operation(summary = "Удаляет все объекты и их потомков")
     public ResponseEntity<Answer> delete(String id) {
         Item ans = findChildrenByRootId(id);
         if (ans == null) {
@@ -160,6 +167,7 @@ public class ItemComponent {
         return ResponseEntity.ok(new Answer(200, "OK"));
     }
 
+    @Operation(summary = "Обновляет время объектов")
     public void updateRootTime(String childId, Timestamp updateTime) {
         Optional<Item> root = itemRepo.findById(childId);
         if (root.isPresent()) {
@@ -172,6 +180,7 @@ public class ItemComponent {
 
 
     //Increase and decrease of the price with a rise up
+    @Operation(summary = "Прибавляет цену при создании OFFER", description = "Увеличивает цену всех родителей при создании объекта")
     private void addOfferPrice(Item item, Double add) {
         List<Item> roots = itemRepo.findAllById(item.getParentId());
         for (Item root : roots) {
@@ -191,6 +200,7 @@ public class ItemComponent {
         }
     }
 
+    @Operation(summary = "Вычитание цены при удалении", description = "Уменьшает цену всех родителей при удалении объекта")
     private void subPrice(Item item, Double sub) {
         List<Item> roots = itemRepo.findAllById(item.getParentId());
         for (Item root : roots) {
@@ -207,6 +217,7 @@ public class ItemComponent {
 
 
     //statistic
+    @Operation(summary = "Получение статистики по ID", description = "Метод возвращает статистику по полученнуму ID. Ответ в формате ResponceEntity где в body находится JSON объект")
     @SneakyThrows
     public ResponseEntity statistic(String id, String dateStart, String dateFinish) {
         Timestamp start, finish;
@@ -230,6 +241,8 @@ public class ItemComponent {
     }
 
     //imports
+    @Operation(summary = "Получате объекты из запроса /imports", description = "Преобразует JSON из запроса в Item.class и сохраняет в БД")
+
     public ResponseEntity<Answer> parse(String stringJson) throws ParseException {
         if (stringJson.charAt(0) != '[') {
             stringJson = "[" + stringJson;

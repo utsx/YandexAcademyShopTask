@@ -1,6 +1,8 @@
 package ru.yndx.school.shop.controllers;
 
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpEntity;
@@ -11,6 +13,7 @@ import ru.yndx.school.shop.components.ItemComponent;
 import java.util.Objects;
 
 @RestController
+@Tag(name = "Главный контейнер", description = "В данном контейнере представлены все методы доступные в сервисе")
 public class MainController {
 
     private final ItemComponent itemComponent;
@@ -41,8 +44,8 @@ public class MainController {
     }
 
     @GetMapping(value = "/node/{id}/statistic")
-    public ResponseEntity statistic(@PathVariable String id, @RequestParam(value = "dateStart") String dateStart,
-                                    @RequestParam(value = "dateEnd") String dateFinish){
+    public ResponseEntity statistic(@PathVariable String id, @RequestParam(value = "dateStart") @Parameter(description = "Дата начала проверки") String dateStart,
+                                    @RequestParam(value = "dateEnd") @Parameter(description = "Дата окончания проверки") String dateFinish){
         return itemComponent.statistic(id, dateStart, dateFinish);
     }
 

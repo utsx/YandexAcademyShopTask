@@ -1,5 +1,6 @@
 package ru.yndx.school.shop.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.sql.Timestamp;
@@ -13,6 +14,7 @@ import java.util.TimeZone;
 @Data
 @Setter
 @Getter
+@Schema(description = "Сущность для возврата товара/категории")
 public class ItemReturn{
     private String type;
     private String name;

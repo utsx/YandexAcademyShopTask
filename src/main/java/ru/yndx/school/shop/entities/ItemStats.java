@@ -1,5 +1,6 @@
 package ru.yndx.school.shop.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import java.sql.Timestamp;
 
 @RequiredArgsConstructor
 @Data
+@Schema(description = "Сущность для возврата статистики")
 public class ItemStats {
     private String id;
     private String name;

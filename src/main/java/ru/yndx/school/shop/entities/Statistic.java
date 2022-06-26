@@ -1,5 +1,6 @@
 package ru.yndx.school.shop.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Setter
 @Getter
+@Schema(description = "Статистика вызванных методов")
 public class Statistic {
     @Id
     @Column(name = "id", nullable = false)
