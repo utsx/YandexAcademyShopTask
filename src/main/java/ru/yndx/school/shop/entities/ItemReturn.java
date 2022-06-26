@@ -36,7 +36,7 @@ public class ItemReturn{
         this.id = id;
         this.price = !Objects.equals(price, 0) ? price : null;
         this.parentId = parentId;
-        this.date = date.toString().replace(" ", "T") + "0Z";
+        this.date = date.toString().replace(" ", "T") + "00Z";
     }
 
 }

@@ -24,7 +24,7 @@ public class ItemStats {
                      final String type){
         this.id = id;
         this.name = name;
-        this.date = date.toString().replace(" ", "T") + "0Z";
+        this.date = date.toString().replace(" ", "T") + "00Z";
         this.parentId = parentId;
         this.price = price;
         this.type = type;

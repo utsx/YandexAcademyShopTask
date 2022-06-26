@@ -66,7 +66,7 @@ public class ItemComponent {
             List<Item> itemChildren = itemRepo.findAllByParentId(root.getId());
             List<ItemReturn> children = new ArrayList<>();
             itemChildren.forEach(item -> {
-                children.add(new ItemReturn(ans.getType(), item.getName(), item.getId(),
+                children.add(new ItemReturn(item.getType(), item.getName(), item.getId(),
                         item.getPrice().longValue(), item.getParentId(), item.getDate()));
             });
             if (!children.isEmpty()) {
@@ -108,20 +108,16 @@ public class ItemComponent {
     }
 
     //sales
-    @SneakyThrows
-    public ResponseEntity sales(String httpEntity) {
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(String.valueOf(httpEntity));
+    public ResponseEntity sales(String date) {
         Timestamp start, finish;
         try {
-
-            start = new Timestamp(DatatypeConverter.parseDateTime(String.valueOf(jsonObject.get("date"))).getTimeInMillis());
+            finish = new Timestamp(DatatypeConverter.parseDateTime(String.valueOf(date)).getTimeInMillis());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            finish = new Timestamp(DatatypeConverter.parseDateTime(LocalDate.parse(start.toString().substring(0, 19), formatter).minusDays(1).toString()).getTimeInMillis());
+            start = new Timestamp(DatatypeConverter.parseDateTime(LocalDate.parse(finish.toString().substring(0, 19), formatter).minusDays(1).toString()).getTimeInMillis());
         } catch (Exception e) {
             return new ResponseEntity(new Answer(400, "Validation Failed"), HttpStatus.BAD_REQUEST);
         }
-        List<String> sales = itemRepo.findSales(finish, start);
+        List<String> sales = itemRepo.findSales(start, finish);
         List<ItemReturn> updates = new ArrayList<>();
         sales.forEach(id -> {
             updates.add((ItemReturn) getItemByIdToReturn(id).getBody());
@@ -147,17 +143,16 @@ public class ItemComponent {
                 queueForDeletion.addAll(item.getChildren());
             if (!Objects.equals(item.getType(), "CATEGORY")) {
                 itemRepo.deleteById(item.getId());
-                if(statisticRepo.findByItemId(item.getId()) != null){
+                if (statisticRepo.findByItemId(item.getId()) != null) {
                     List<Statistic> statistics = statisticRepo.findAllByItemId(item.getId());
                     statistics.forEach(value -> statisticRepo.deleteById(value.getId()));
                 }
-            }
-            else
+            } else
                 categoriesReadyToDelete.add(item);
         }
         itemRepo.deleteAll(categoriesReadyToDelete);
         categoriesReadyToDelete.forEach(value -> {
-            if(statisticRepo.findByItemId(value.getId()) != null){
+            if (statisticRepo.findByItemId(value.getId()) != null) {
                 List<Statistic> statistics = statisticRepo.findAllByItemId(value.getId());
                 statistics.forEach(value1 -> statisticRepo.deleteById(value1.getId()));
             }
@@ -213,24 +208,21 @@ public class ItemComponent {
 
     //statistic
     @SneakyThrows
-    public ResponseEntity statistic(String id, String json) {
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(String.valueOf(json));
+    public ResponseEntity statistic(String id, String dateStart, String dateFinish) {
         Timestamp start, finish;
         if (itemRepo.findById(id).isEmpty()) {
             return new ResponseEntity<>(new Answer(404, "Item not found"), HttpStatus.NOT_FOUND);
         }
         try {
-            start = new Timestamp(DatatypeConverter.parseDateTime(String.valueOf(jsonObject.get("dateStart"))).getTimeInMillis());
-            finish = new Timestamp(DatatypeConverter.parseDateTime(String.valueOf(jsonObject.get("dateEnd"))).getTimeInMillis());
+            start = new Timestamp(DatatypeConverter.parseDateTime(dateStart).getTimeInMillis());
+            finish = new Timestamp(DatatypeConverter.parseDateTime(dateFinish).getTimeInMillis());
         } catch (Exception e) {
             return new ResponseEntity<>(new Answer(400, "Validation Failed"), HttpStatus.BAD_REQUEST);
         }
         List<Statistic> statistics = statisticRepo.findAllStatisticByItemIdInBetween(id, start, finish);
         return ResponseEntity.ok(statistics.stream().map(value -> {
             Optional<Item> item = itemRepo.findById(value.getItemId());
-            if(item.isEmpty())
-            {
+            if (item.isEmpty()) {
                 return null;
             }
             return new ItemStats(value.getItemId(), item.get().getName(), value.getDate().toString(), item.get().getParentId(), value.getValue(), item.get().getType());
@@ -239,9 +231,11 @@ public class ItemComponent {
 
     //imports
     public ResponseEntity<Answer> parse(String stringJson) throws ParseException {
-        stringJson = "[" + stringJson;
+        if (stringJson.charAt(0) != '[') {
+            stringJson = "[" + stringJson;
+            stringJson = stringJson + "]";
+        }
         stringJson = stringJson.replaceAll("None", "null");
-        stringJson = stringJson + "]";
         JSONParser jsonParser = new JSONParser();
         JSONArray jsonArray = (JSONArray) jsonParser.parse(stringJson);
 
@@ -252,20 +246,28 @@ public class ItemComponent {
                 JSONObject itemJson = (JSONObject) jsonParser.parse(String.valueOf(item));
                 Object type = itemJson.get("type");
                 Item itemClass;
-                if ("CATEGORY".equals(type)) {
-                    itemClass = new Item(itemJson.get("id"), type, itemJson.get("name"),
-                            itemJson.get("parentId"), jsonObject.get("updateDate"), null);
-                    if (itemClass.getParentId() != null)
-                        updateRootTime(itemClass.getParentId(), itemClass.getDate());
-                    itemRepo.save(itemClass);
-                } else if ("OFFER".equals(type)) {
-                    itemClass = new Item(itemJson.get("id"), type, itemJson.get("name"),
-                            itemJson.get("parentId") == null ? null : itemJson.get("parentId"), jsonObject.get("updateDate"),
-                            Double.valueOf(String.valueOf(itemJson.get("price"))));
-                    if (itemClass.getParentId() != null)
-                        updateRootTime(itemClass.getParentId(), itemClass.getDate());
-                    addOfferPrice(itemClass, itemClass.getPrice());
-                    itemRepo.save(itemClass);
+                Optional<Item> optionalItem = itemRepo.findById(itemJson.get("id").toString());
+                if (optionalItem.isPresent()) {
+                    if (optionalItem.get().getParentId() != null)
+                        updateRootTime(optionalItem.get().getParentId(),
+                                new Timestamp(DatatypeConverter.parseDateTime(jsonObject.get("updateDate").toString()).getTimeInMillis()));
+                    itemRepo.save(optionalItem.get());
+                } else {
+                    if ("CATEGORY".equals(type)) {
+                        itemClass = new Item(itemJson.get("id"), type, itemJson.get("name"),
+                                itemJson.get("parentId"), jsonObject.get("updateDate"), null);
+                        if (itemClass.getParentId() != null)
+                            updateRootTime(itemClass.getParentId(), itemClass.getDate());
+                        itemRepo.save(itemClass);
+                    } else if ("OFFER".equals(type)) {
+                        itemClass = new Item(itemJson.get("id"), type, itemJson.get("name"),
+                                itemJson.get("parentId") == null ? null : itemJson.get("parentId"), jsonObject.get("updateDate"),
+                                Double.valueOf(String.valueOf(itemJson.get("price"))));
+                        if (itemClass.getParentId() != null)
+                            updateRootTime(itemClass.getParentId(), itemClass.getDate());
+                        addOfferPrice(itemClass, itemClass.getPrice());
+                        itemRepo.save(itemClass);
+                    }
                 }
             }
         }

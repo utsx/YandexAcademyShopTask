@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yndx.school.shop.components.ItemComponent;
 
+import java.util.Objects;
+
 @RestController
 public class MainController {
 
@@ -20,10 +22,10 @@ public class MainController {
     @SneakyThrows
     @PostMapping(value = "/imports", consumes = "application/json", produces = "application/json")
     public ResponseEntity imports(HttpEntity<String> httpEntity){
-        return itemComponent.parse(httpEntity.getBody());
+        return itemComponent.parse(Objects.requireNonNull(httpEntity.getBody()));
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity delete(@PathVariable String id){
         return itemComponent.delete(id);
     }
@@ -33,14 +35,15 @@ public class MainController {
         return itemComponent.getItemByIdToReturn(id);
     }
 
-    @GetMapping(value = "/sales", consumes = "application/json", produces = "application/json")
-    public ResponseEntity sales(HttpEntity<String> httpEntity){
-        return itemComponent.sales(httpEntity.getBody());
+    @GetMapping(value = "/sales")
+    public ResponseEntity sales(@RequestParam(value = "date") String date){
+        return itemComponent.sales(date);
     }
 
-    @GetMapping(value = "/nodes/{id}/statistic", consumes = "application/json", produces = "application/json")
-    public ResponseEntity statistic(@PathVariable String id, HttpEntity<String> httpEntity){
-        return itemComponent.statistic(id, httpEntity.getBody());
+    @GetMapping(value = "/node/{id}/statistic")
+    public ResponseEntity statistic(@PathVariable String id, @RequestParam(value = "dateStart") String dateStart,
+                                    @RequestParam(value = "dateEnd") String dateFinish){
+        return itemComponent.statistic(id, dateStart, dateFinish);
     }
 
 }
