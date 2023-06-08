@@ -1,2 +1,1 @@
 # YandexAcademyShopTask
-Документация доступна
